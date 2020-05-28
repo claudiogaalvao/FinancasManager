@@ -33,20 +33,31 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_lista_transacoes)
 
         configuraResumo()
-
         configuraLista()
+        configuraFab()
+    }
 
-        lista_transacoes_adiciona_receita.setOnClickListener {
-            AdicionaTransacaoDialog(this,
-                window.decorView as ViewGroup)
-                .configuraDialog(object : TransacaoDelegate {
-                    override fun delegate(transacao: Transacao) {
-                        atualizaTransacoes(transacao)
-                        lista_transacoes_adiciona_menu.close(true)
-                    }
+    private fun configuraFab() {
+        lista_transacoes_adiciona_receita
+            .setOnClickListener {
+                chamaDialogAdicao(Tipo.RECEITA)
+            }
 
-                })
-        }
+        lista_transacoes_adiciona_despesa
+            .setOnClickListener {
+                chamaDialogAdicao(Tipo.DESPESA)
+            }
+    }
+
+    private fun chamaDialogAdicao(tipo: Tipo) {
+        AdicionaTransacaoDialog(this, window.decorView as ViewGroup)
+            .configuraDialog(tipo, object : TransacaoDelegate {
+                override fun delegate(transacao: Transacao) {
+                    atualizaTransacoes(transacao)
+                    lista_transacoes_adiciona_menu.close(true)
+                }
+
+            })
     }
 
     private fun atualizaTransacoes(transacao: Transacao) {
