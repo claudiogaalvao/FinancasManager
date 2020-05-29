@@ -1,33 +1,26 @@
 package br.com.claudiogalvao.financask.ui.activity
 
-import android.app.DatePickerDialog
-import android.content.DialogInterface
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import br.com.claudiogalvao.financask.R
-import br.com.claudiogalvao.financask.delegate.TransacaoDelegate
-import br.com.claudiogalvao.financask.ui.ResumoView
-import br.com.claudiogalvao.financask.extension.formataParaBrasileiro
 import br.com.claudiogalvao.financask.model.Tipo
 import br.com.claudiogalvao.financask.model.Transacao
+import br.com.claudiogalvao.financask.ui.ResumoView
 import br.com.claudiogalvao.financask.ui.adapter.ListaTransacoesAdapter
 import br.com.claudiogalvao.financask.ui.dialog.AdicionaTransacaoDialog
 import br.com.claudiogalvao.financask.ui.dialog.AlteraTransacaoDialog
 import kotlinx.android.synthetic.main.activity_lista_transacoes.*
-import kotlinx.android.synthetic.main.form_transacao.view.*
-import java.lang.NumberFormatException
-import java.math.BigDecimal
-import java.text.SimpleDateFormat
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private val transacoes: MutableList<Transacao> = mutableListOf()
+    private val viewDaActivity by lazy {
+        window.decorView
+    }
+    private val viewGroupDaActivity by lazy {
+        viewDaActivity as ViewGroup
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,14 +44,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun chamaDialogAdicao(tipo: Tipo) {
-        AdicionaTransacaoDialog(this, window.decorView as ViewGroup)
-            .configuraDialog(tipo, object : TransacaoDelegate {
-                override fun delegate(transacao: Transacao) {
-                    adiciona(transacao)
-                    lista_transacoes_adiciona_menu.close(true)
-                }
-
-            })
+        AdicionaTransacaoDialog(this, viewGroupDaActivity)
+            .configuraDialog(tipo) { transacaoCriada ->
+                adiciona(transacaoCriada)
+                lista_transacoes_adiciona_menu.close(true)
+            }
     }
 
     private fun adiciona(transacao: Transacao) {
@@ -72,7 +62,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configuraResumo() {
-        val view = window.decorView
+        val view = viewDaActivity
         val resumoView =
             ResumoView(this, view, transacoes)
         resumoView.atualiza()
@@ -91,13 +81,10 @@ class MainActivity : AppCompatActivity() {
         transacao: Transacao,
         position: Int
     ) {
-        AlteraTransacaoDialog(this, window.decorView as ViewGroup)
-            .configuraDialog(transacao, object : TransacaoDelegate {
-                override fun delegate(transacao: Transacao) {
-                    altera(transacao, position)
-                }
-
-            })
+        AlteraTransacaoDialog(this, viewGroupDaActivity)
+            .configuraDialog(transacao) { transacaoAlterada ->
+                altera(transacaoAlterada, position)
+            }
     }
 
     private fun altera(
